@@ -14,7 +14,7 @@ export function initAudio() {
   // 单例
   if (audio) return { playBgm, stopBgm };
 
-  audio = new Audio('/bgm.mp3');
+  audio = new Audio('/xiaolu/bgm.mp3');  // 👈 改这里！
   audio.loop = true;
   audio.preload = 'auto';
   audio.volume = 0.6;
