@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1920">
-  <title>给佳琪 · 毕业祝福</title>
+  <title>毕业祝福</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;900&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-DWPz8gYa.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DbAIgVPd.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;900&family=Great+Vibes&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/xiaolu/assets/index-mCmX0PCx.js"></script>
+  <link rel="stylesheet" crossorigin href="/xiaolu/assets/index-B1K-s_dm.css">
 </head>
 <body>
   <!-- === 验证遮罩 === -->
@@ -16,12 +16,23 @@
     <div class="loading-box">
       <div class="loading-heart">&#10022;</div>
       <div class="loading-title">专属祝福</div>
-      <p class="loading-hint">输入好友名字验证</p>
+      <p class="loading-hint">请输入你最好听的名字</p>
       <input type="text" id="nameInput" class="name-input" placeholder="输入名字 ..." maxlength="20" autocomplete="off">
       <button id="verifyBtn" class="verify-btn">进入</button>
       <p class="loading-error" id="loadingError"></p>
       <p class="loading-foot">— 献给我的好朋友 —</p>
     </div>
+    <!-- === 验证后便签（独立于 loading-box，绝对居中）=== -->
+    <div id="noteCard" class="note-card" style="display:none;">
+      <div class="note-body">
+        <p>毕业快乐！</p>
+        <p>这一天还是来了。很遗憾没能去你的毕业典礼，缺席了这么重要的时刻。</p>
+        <p>所以悄悄准备了这份迟到的祝福，希望多少能弥补一点现场的遗憾。</p>
+        <p>虽然比不上身临其境的热闹，但每一处都是用心做的，希望你喜欢！</p>
+      </div>
+      <button id="noteConfirm" class="note-confirm">确定</button>
+    </div>
+
   </div>
 
   <!-- === 暮色叠层（验证通过后渐显）=== -->
@@ -33,6 +44,9 @@
 
   <!-- === 烟花 Canvas === -->
   <canvas id="fireworksCanvas" class="layer-fireworks"></canvas>
+
+  <!-- === 校园建筑 Canvas === -->
+  <canvas id="campusCanvas" class="layer-campus"></canvas>
 
   <!-- === 天气面板 === -->
   <div class="weather-panel left" id="weatherLeft">
@@ -50,8 +64,35 @@
     </div>
   </div>
 
+  <!-- === 励志语录轮播 === -->
+  <div class="quotes-cycler" id="quotesCycler">
+    <div class="quote-item active" data-index="0">目标不止于此</div>
+    <div class="quote-item" data-index="1">追光者终将光芒万丈</div>
+    <div class="quote-item" data-index="2">希望你能学会快乐，我们未来见</div>
+    <div class="quote-item" data-index="3">愿我的人生没有极限</div>
+    <div class="quote-item" data-index="4">对的人，会站在你的前途里</div>
+    <div class="quote-item" data-index="5">只有通往地狱的路，才会铺满善意的鲜花</div>
+  </div>
+
   <!-- === 中心文字 === -->
   <div class="center-group">
+    <div class="cap-container" id="capContainer">
+      <svg class="grad-cap silhouette" viewBox="0 0 140 110" width="120" height="100">
+        <!-- 帽板（平剪影，和建筑一致） -->
+        <path class="cap-board" d="M12,58 L70,10 L128,58 L70,66 Z"/>
+        <!-- 圆帽基座 -->
+        <ellipse class="cap-base" cx="70" cy="66" rx="48" ry="13"/>
+        <!-- 帽檐 -->
+        <ellipse class="cap-rim" cx="70" cy="72" rx="48" ry="8"/>
+        <!-- 流苏绳 -->
+        <path class="cap-tassel" d="M70,15 Q85,28 92,48"/>
+        <!-- 流苏穗 -->
+        <path class="cap-tassel-body" d="M91,45 Q95,60 93,70 Q91,73 88,70 Q90,57 89,45"/>
+        <circle class="cap-tassel-end" cx="90" cy="45" r="3"/>
+        <!-- 纽扣 -->
+        <circle class="cap-button" cx="70" cy="60" r="2.5"/>
+      </svg>
+    </div>
     <h1 class="main-title" id="mainTitle">毕业快乐</h1>
     <h2 class="sub-title" id="subTitle">
       <span>愿</span><span>我</span><span>们</span><span>顶</span><span>峰</span><span>相</span><span>见</span>
@@ -63,7 +104,7 @@
     <div class="distance-number" id="distanceNumber">0</div>
     <div class="distance-unit">
       公里
-      <span class="distance-desc">广软 → 云师</span>
+      <span class="distance-desc">广软 - 云师</span>
     </div>
   </div>
 
@@ -117,16 +158,6 @@
         </svg>
         <span class="panel-btn-label">烟花</span>
       </button>
-      <!-- 孔明灯 -->
-      <button id="lanternBtn" class="panel-btn" title="孔明灯">
-        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M24 8c-6 0-11 3-11 10 0 4 2 7 4 10l7 12 7-12c2-3 4-6 4-10 0-7-5-10-11-10z"/>
-          <line x1="22" y1="12" x2="26" y2="12"/>
-          <line x1="23" y1="16" x2="25" y2="16"/>
-          <path d="M19 18c2 2 5 3 9 0"/>
-        </svg>
-        <span class="panel-btn-label">孔明灯</span>
-      </button>
       <!-- 音乐 -->
       <button id="musicBtn" class="panel-btn" title="音乐">
         <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -135,16 +166,6 @@
           <circle cx="36" cy="32" r="6"/>
         </svg>
         <span class="panel-btn-label">音乐</span>
-      </button>
-      <!-- 天气 -->
-      <button id="weatherBtn" class="panel-btn" title="天气">
-        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="24" cy="18" r="5"/>
-          <path d="M24 8v2M24 26v2M14 18h-2M34 18h-2M17.5 11.5l-1.5-1.5M32 28l-1.5-1.5M30.5 11.5l1.5-1.5M16 28l1.5-1.5"/>
-          <path d="M28 30h8a4 4 0 0 0 0-8h-1a7 7 0 0 0-13-3"/>
-          <path d="M18 30h-4a4 4 0 0 1 0-8h1a7 7 0 0 1 13-3"/>
-        </svg>
-        <span class="panel-btn-label">天气</span>
       </button>
       <!-- 自定义 -->
       <button id="settingsBtn" class="panel-btn" title="自定义">
@@ -207,15 +228,18 @@
     <div class="letter-modal-wrap">
       <button class="letter-modal-close" id="letterModalClose" aria-label="关闭信纸">✕</button>
       <div class="letter-paper">
-        <div class="letter-header">给佳琪</div>
-        <div class="letter-body">
-          <p>亲爱的佳琪：</p>
+        <div class="letter-header">To My Dearest Jiaqi</div>
+                <div class="letter-body">
+          <p>亲爱的陆佳琪：</p>
           <p>毕业快乐！</p>
-          <p>四年的时光像夏天的风一样匆匆吹过。从广软到云师，从广州到昆明，一千多公里的距离，丝毫没有冲淡我们的友情。</p>
-          <p>还记得那些一起走过的日子吗？那些笑声、那些深夜的长谈、那些互相鼓励的瞬间，都是我青春里最珍贵的片段。</p>
-          <p>如今你即将踏上新的旅程，愿你前程似锦，万事胜意。去更远的地方，见更亮的光。</p>
-          <p>山海虽远，祝福即达。</p>
-          <p class="letter-sign">—— 你的朋友</p>
+          <p>展信舒颜，见字如面。</p>
+          <p>时间总是过得很快，没想到这都已经毕业了，细细想来，我们认识也快两年了。即便从未见过面，但我说过，我永远对你保持着一份炙热。</p>
+          <p>这两年，我们隔着屏幕分享过清晨的闹钟、深夜的焦虑、食堂难吃的饭菜，还有那些不值一提却闪闪发光的小确幸。从最初客客气气的&ldquo;在吗？&rdquo;，到后来可以直接一句&ldquo;我跟你说&rdquo;就开始——这种默契，不输任何现实中的朝夕相处。</p>
+          <p>虽然我没法递上一束花，也没法帮你整理帽穗，但这份祝福跨过所有距离，真心不减。</p>
+          <p>毕业了，世界一下子变得很大，大到你也许会慌张。但你已经在我的世界里，留下了很深的印记。所以请带着这份&ldquo;没见过面却依然炙热&rdquo;的信任，大胆往前走。累了的时候，我还在这个对话框里，像过去两年一样，随时听你说。</p>
+          <p>愿你此去，有梦有光有自由。</p>
+          <p>期待我们终于见面的那天。</p>
+          <p class="letter-sign">永远愿意听你说的人</p>
           <div class="letter-seal-row"><div class="letter-seal">琪</div></div>
         </div>
       </div>
