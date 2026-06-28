@@ -1,0 +1,1714 @@
+/* =========================================================
+   毕业祝福 · 主样式表
+   青春夏日傍晚 · 全屏沉浸
+   ========================================================= */
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(145deg, #9fc8e8 0%, #f0dcc8 55%, #f5c0b0 100%);
+  background-attachment: fixed;
+  transition: background 4s ease;
+  font-family: 'Noto Sans SC', 'Source Han Sans SC', 'Source Han Sans SC Heavy',
+               'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 400;
+  color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- 学士帽主题色变量（跟随天气/日夜，仅深浅两色，和建筑一致） ---- */
+:root {
+  --cap-board: #d5cdc5;
+  --cap-body: #bfb7af;
+}
+
+/* ---- Loading Overlay ---- */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #9fc8e8 0%, #f0dcc8 55%, #f5c0b0 100%);
+  transition: opacity 0.8s ease;
+}
+
+.loading-box {
+  text-align: center;
+  padding: 48px 56px 40px;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10);
+  min-width: 320px;
+  animation: loadIn 0.8s ease-out;
+}
+
+@keyframes loadIn {
+  0% { opacity: 0; transform: translateY(20px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.loading-heart {
+  font-size: 32px;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.3);
+  margin-bottom: 8px;
+  letter-spacing: 0;
+}
+
+.loading-box .loading-title {
+  font-weight: 900;
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(255, 255, 255, 0.25);
+  margin-bottom: 6px;
+  letter-spacing: 4px;
+}
+
+.loading-hint {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.name-input {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  letter-spacing: 2px;
+}
+
+.name-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.name-input:focus {
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.verify-btn {
+  margin-top: 16px;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 900;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.verify-btn:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.verify-btn:active {
+  transform: scale(0.97);
+}
+
+.loading-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(255, 200, 200, 0.9);
+  min-height: 20px;
+  letter-spacing: 1px;
+}
+
+.loading-foot {
+  margin-top: 18px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 2px;
+}
+
+/* ---- Shake animation ---- */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.4s ease;
+}
+
+/* ---- 暮色叠层（渐显） ---- */
+.sky-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg,
+    rgba(10, 15, 38, 0.28) 0%,
+    rgba(35, 25, 45, 0.15) 30%,
+    rgba(55, 30, 35, 0.06) 55%,
+    transparent 80%
+  );
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* ---- Canvas Layers ---- */
+.layer-noise,
+.layer-main {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.layer-noise {
+  z-index: 1;
+  opacity: 0.15;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.layer-main {
+  z-index: 3;
+}
+
+/* ---- Fireworks Canvas ---- */
+.layer-fireworks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* ---- Weather Icon (SVG 线描) ---- */
+.weather-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+/* ---- Weather Panels ---- */
+.weather-panel {
+  position: fixed;
+  top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+  opacity: 0;
+}
+
+.weather-panel.left  { left: 36px; }
+.weather-panel.right { right: 36px; flex-direction: row-reverse; }
+.weather-panel.right .weather-info { text-align: right; }
+
+.weather-icon svg {
+  display: block;
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+}
+
+.weather-city {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  line-height: 1.3;
+}
+
+.weather-temp {
+  display: block;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+/* ---- Center Group ---- */
+.center-group {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.main-title {
+  font-weight: 900;
+  font-size: clamp(56px, 5vw, 88px);
+  color: #fff;
+  text-shadow:
+    0 0 40px rgba(255, 255, 255, 0.35),
+    0 0 80px rgba(255, 255, 255, 0.15),
+    0 4px 24px rgba(0, 0, 0, 0.12);
+  line-height: 1.25;
+  letter-spacing: 6px;
+  opacity: 0;
+}
+
+/* 学士帽（纯平剪影，和建筑物一致） */
+.cap-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: -10px;
+  opacity: 0;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+}
+.grad-cap.silhouette {
+  display: block;
+  width: clamp(80px, 8vw, 130px);
+  height: auto;
+}
+/* 学士帽纯平颜色 — 仅深浅两色（浅=帽板流苏，深=帽体帽檐），和建筑完全一致 */
+.grad-cap.silhouette .cap-board        { fill: var(--cap-board); }
+.grad-cap.silhouette .cap-base         { fill: var(--cap-body); }
+.grad-cap.silhouette .cap-rim          { fill: var(--cap-body); }
+.grad-cap.silhouette .cap-tassel       { fill: none; stroke: var(--cap-board); stroke-width: 1.5; stroke-linecap: round; }
+.grad-cap.silhouette .cap-tassel-body  { fill: var(--cap-board); }
+.grad-cap.silhouette .cap-tassel-end   { fill: var(--cap-board); }
+.grad-cap.silhouette .cap-button       { fill: var(--cap-board); }
+
+
+.sub-title {
+  margin-top: 16px;
+  font-weight: 400;
+  font-size: clamp(18px, 1.8vw, 30px);
+  color: #fff;
+  text-shadow:
+    0 0 24px rgba(255, 255, 255, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.1);
+  line-height: 1.6;
+  letter-spacing: 4px;
+}
+
+.sub-title span {
+  display: inline-block;
+  opacity: 0;
+}
+
+/* ---- Distance Section ---- */
+.distance-section {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.distance-number {
+  font-weight: 900;
+  font-size: clamp(42px, 3.6vw, 64px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+
+.distance-unit {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.distance-desc {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 2px;
+  letter-spacing: 1px;
+  line-height: 1.5;
+}
+
+/* ---- Footer ---- */
+.footer-text {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 6px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- 相识天数（距离数字旁） ---- */
+.meet-count {
+  position: fixed;
+  bottom: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  letter-spacing: 2px;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+.meet-count-number {
+  font-weight: 900;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.70);
+  margin: 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 顶部励志语录轮播 ---- */
+.quotes-cycler {
+  position: fixed;
+  top: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  pointer-events: none;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+.quote-item {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  font-size: clamp(12px, 1.6vw, 15px);
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  white-space: nowrap;
+  line-height: 1;
+}
+.quote-item.active {
+  opacity: 1;
+  position: relative;
+}
+
+/* ---- 实时时钟 ---- */
+.clock-display {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Petal Styles ---- */
+.petal {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  will-change: transform, opacity;
+  border-radius: 60% 20% 55% 25% / 55% 25% 60% 20%;
+  transform-origin: center center;
+}
+body.weather-sunny {
+  background: linear-gradient(145deg, #9fc8e8 0%, #f0dcc8 55%, #f5c0b0 100%);
+}
+body.weather-rainy {
+  background: linear-gradient(145deg, #607080 0%, #7a7070 55%, #8a6860 100%);
+  --cap-board: #a0a0a8;
+  --cap-body: #888890;
+}
+
+/* ---- Night Mode (overrides weather background) ---- */
+body.night-mode {
+  background: linear-gradient(145deg, #0a0e2a 0%, #1a1535 40%, #2a1820 100%);
+  --cap-board: #353d50;
+  --cap-body: #2a3040;
+}
+body.night-mode.weather-rainy {
+  background: linear-gradient(145deg, #050810 0%, #100818 40%, #180810 100%);
+  --cap-board: #353d50;
+  --cap-body: #2a3040;
+}
+
+/* ================================================================
+   右侧换页按钮 & 面板
+   ================================================================ */
+
+.side-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  width: 32px;
+  height: 72px;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.25;
+  transition: opacity 0.35s ease, background 0.35s ease, width 0.3s ease;
+  outline: none;
+}
+.side-tab:hover {
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.2);
+  width: 38px;
+}
+.side-tab:active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ---- 侧滑面板 ---- */
+.side-panel {
+  position: fixed;
+  right: -200px;
+  top: 0;
+  width: 180px;
+  height: 100vh;
+  z-index: 99;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
+  transition: right 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 72px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+.side-panel.open {
+  right: 0;
+}
+
+.panel-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, color 0.3s;
+}
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+/* ---- 面板图标（单列） ---- */
+.panel-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.panel-btn {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: background 0.3s, transform 0.25s, border-color 0.3s;
+  outline: none;
+}
+.panel-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: scale(1.06);
+}
+.panel-btn:active {
+  transform: scale(0.96);
+}
+
+.panel-btn-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+/* ================================================================
+   自定义设置弹窗
+   ================================================================ */
+
+.settings-modal {
+  max-width: 260px;
+}
+
+.sm-body {
+  padding: 0 2px;
+}
+
+/* 主开关行 */
+.sm-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 0 6px;
+}
+.sm-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+}
+
+/* 展开的选项区 */
+.sm-options {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.4s ease;
+}
+.sm-options.open {
+  max-height: 320px;
+  opacity: 1;
+}
+
+.sm-group {
+  padding: 8px 0 4px;
+}
+.sm-group + .sm-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sm-group-title {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+/* ---- 自定义开关滑块 ---- */
+.st-toggle {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.st-toggle input { opacity: 0; width: 0; height: 0; }
+.st-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  transition: background 0.3s;
+}
+.st-toggle-slider::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.3s;
+}
+.st-toggle input:checked + .st-toggle-slider {
+  background: rgba(255, 215, 0, 0.55);
+}
+.st-toggle input:checked + .st-toggle-slider::before {
+  transform: translateX(16px);
+}
+
+/* 单选 / 复选行 */
+.st-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  cursor: pointer;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.2s;
+  line-height: 1.3;
+}
+.st-opt:hover { color: rgba(255, 255, 255, 0.85); }
+.st-opt input { display: none; }
+
+/* 单选圆点 */
+.st-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  transition: border-color 0.25s, background 0.25s;
+}
+.st-opt input:checked + .st-dot {
+  border-color: #FFD700;
+  background: #FFD700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+}
+
+/* 复选方块 */
+.st-cb {
+  width: 10px;
+  height: 10px;
+  border-radius: 2.5px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative;
+}
+.st-opt input:checked + .st-cb {
+  border-color: #FFD700;
+  background: #FFD700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+}
+.st-opt input:checked + .st-cb::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  line-height: 1;
+  color: #333;
+}
+
+/* ================================================================
+   居中信纸弹窗 · 重绘 — 暖色纸纹主题
+   ================================================================ */
+
+.letter-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.letter-modal.open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.letter-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.letter-modal-wrap {
+  position: relative;
+  width: 92vw;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: scale(0.92) translateY(16px);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.letter-modal.open .letter-modal-wrap {
+  transform: scale(1) translateY(0);
+}
+
+.letter-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+  z-index: 1;
+}
+.letter-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- 信纸主体（重绘） ---- */
+.letter-paper {
+  background: linear-gradient(155deg, #fef8ed 0%, #fdf0e0 40%, #fef6eb 100%);
+  border: 1.5px solid rgba(212, 163, 115, 0.22);
+  border-radius: 14px;
+  padding: 34px 28px 38px;
+  position: relative;
+  box-shadow:
+    0 6px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  animation: letterIn 0.6s ease-out;
+  overflow: hidden;
+}
+
+/* 内层装饰线框 */
+.letter-paper::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px;
+  right: 8px; bottom: 8px;
+  border: 1px solid rgba(212, 163, 115, 0.10);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* 右上角小花 */
+.letter-paper::after {
+  content: '❀';
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 15px;
+  color: rgba(212, 163, 115, 0.20);
+  pointer-events: none;
+}
+
+@keyframes letterIn {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.letter-header {
+  font-family: 'Great Vibes', 'Noto Sans SC', cursive;
+  font-weight: 400;
+  font-size: 26px;
+  text-align: center;
+  color: #d4a373;
+  letter-spacing: 2px;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1.5px solid rgba(212, 163, 115, 0.15);
+  position: relative;
+}
+.letter-header::before {
+  content: '✦';
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 12px;
+  color: rgba(212, 163, 115, 0.35);
+  vertical-align: middle;
+}
+.letter-header::after {
+  content: '✦';
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 12px;
+  color: rgba(212, 163, 115, 0.35);
+  vertical-align: middle;
+}
+
+.letter-body {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #5a4f44;
+  position: relative;
+  z-index: 1;
+}
+
+.letter-body p {
+  margin-bottom: 10px;
+  text-indent: 2em;
+}
+
+.letter-body p:first-child {
+  text-indent: 0;
+}
+
+.letter-sign {
+  text-align: right;
+  text-indent: 0 !important;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(212, 163, 115, 0.15);
+  font-style: italic;
+  color: #d4a373;
+  letter-spacing: 2px;
+  position: relative;
+}
+
+/* 火漆印章 — 暖纸色调 */
+.letter-seal {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #d4a373, #b88350);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  font-weight: 900;
+  margin: 14px auto 0;
+  box-shadow: 0 2px 10px rgba(184, 131, 80, 0.30);
+  position: relative;
+  flex-shrink: 0;
+}
+.letter-seal::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 50%;
+}
+.letter-seal-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* ---- 雨天信封色调 ---- */
+body.weather-rainy .letter-paper {
+  background: linear-gradient(155deg, #eef3f8 0%, #e4e8f0 40%, #eaeef5 100%);
+  border-color: rgba(130, 150, 175, 0.22);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+body.weather-rainy .letter-paper::before {
+  border-color: rgba(130, 150, 175, 0.10);
+}
+body.weather-rainy .letter-paper::after {
+  color: rgba(130, 150, 175, 0.18);
+}
+body.weather-rainy .letter-header {
+  font-family: 'Great Vibes', 'Noto Sans SC', cursive;
+  font-weight: 400;
+  color: #7a8a9a;
+  border-bottom-color: rgba(130, 150, 175, 0.15);
+}
+body.weather-rainy .letter-header::before,
+body.weather-rainy .letter-header::after {
+  color: rgba(130, 150, 175, 0.35);
+}
+body.weather-rainy .letter-body {
+  color: #4a5058;
+}
+body.weather-rainy .letter-sign {
+  color: #7a8a9a;
+  border-top-color: rgba(130, 150, 175, 0.15);
+}
+body.weather-rainy .letter-seal {
+  background: radial-gradient(circle at 38% 35%, #8a9aaa, #6a7a8a);
+  box-shadow: 0 2px 10px rgba(100, 120, 150, 0.30);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---- Responsive ---- */
+@media (min-width: 1800px) {
+  .main-title        { font-size: 88px; }
+  .sub-title         { font-size: 30px; }
+  .distance-number   { font-size: 64px; }
+}
+
+/* ================================================================
+   相册全屏页面 — 四角一中 · 花边相框
+   ================================================================ */
+
+.album-page {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, #9fc8e8 0%, #f0dcc8 55%, #f5c0b0 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  overflow: hidden;
+}
+.album-page.open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* ---- 顶栏 ---- */
+.album-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px 0;
+  flex-shrink: 0;
+}
+
+.album-page-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
+  font-size: 13px;
+  font-family: inherit;
+  letter-spacing: 1px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.album-page-back:hover {
+  background: rgba(255, 255, 255, 0.20);
+  color: #fff;
+}
+
+.album-page-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.album-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.album-file-input { display: none; }
+
+.album-page-upload-label {
+  cursor: pointer;
+}
+.album-page-upload-btn {
+  display: inline-block;
+  padding: 6px 16px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.30);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.70);
+  font-size: 12px;
+  font-family: inherit;
+  letter-spacing: 1px;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.album-page-upload-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+}
+
+.album-page-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.40);
+  letter-spacing: 1px;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ---- 主体 ---- */
+.album-page-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px 20px;
+  overflow: hidden;
+}
+
+/* ===================================================
+   四角一中 布局
+   =================================================== */
+.album-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+}
+
+.album-item {
+  position: absolute;
+  max-width: 28%;
+  max-height: 36%;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, z-index 0s;
+}
+.album-item:hover {
+  transform: scale(1.04) !important;
+  z-index: 10;
+}
+
+.album-item[data-index="0"] { top: 5%; left: 2%; }
+.album-item[data-index="1"] { top: 5%; right: 2%; }
+.album-item[data-index="2"] {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(1.12);
+  max-width: 32%;
+  max-height: 40%;
+  z-index: 2;
+}
+.album-item[data-index="2"]:hover {
+  transform: translate(-50%, -50%) scale(1.16) !important;
+}
+.album-item[data-index="3"] { bottom: 5%; left: 2%; }
+.album-item[data-index="4"] { bottom: 5%; right: 2%; }
+
+/* ---- frame-img-wrap ---- */
+.frame-img-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 60px;
+  background: rgba(255, 255, 255, 0.20);
+}
+
+.frame-img {
+  display: block;
+  max-width: 100%;
+  max-height: 170px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: opacity 0.4s ease;
+}
+
+.album-item:not(.has-image) .frame-img {
+  opacity: 0;
+}
+
+/* 空槽位占位符 */
+.album-item:not(.has-image)::after {
+  content: '＋';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.15);
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+/* ===================================================
+   高技术花框 — 三层边框 · 四角花簇 · 暖纸底纹
+   =================================================== */
+
+/* 统一基底 */
+.frame {
+  background: linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+  border-radius: 16px;
+  padding: 10px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(180, 155, 130, 0.12),
+    0 0 0 4px rgba(255, 252, 248, 0.85),
+    0 0 0 5px rgba(180, 155, 130, 0.07),
+    0 8px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+/* 内层缝线 */
+.frame::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(180, 155, 130, 0.08);
+  border-radius: 11px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ═══ 各角花簇 + 倾斜 ═══ */
+/* 每角由 4 个径向渐变构成一朵小花（3花瓣+1花蕊），四角共 16 层 */
+
+/* ── 左上 · 暖粉 ── */
+.album-item[data-index="0"] .frame {
+  transform: rotate(-3deg);
+  background:
+    /* TL flower */
+    radial-gradient(4px 4px at 14% 15%, rgba(212,130,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 12%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 12%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 14%, rgba(180,95,105,0.18) 50%, transparent 50%),
+    /* TR flower */
+    radial-gradient(4px 4px at 86% 15%, rgba(212,130,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 12%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 12%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 14%, rgba(180,95,105,0.18) 50%, transparent 50%),
+    /* BL flower */
+    radial-gradient(4px 4px at 14% 85%, rgba(212,130,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 82%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 82%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 84%, rgba(180,95,105,0.18) 50%, transparent 50%),
+    /* BR flower */
+    radial-gradient(4px 4px at 86% 85%, rgba(212,130,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 82%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 82%, rgba(212,130,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 84%, rgba(180,95,105,0.18) 50%, transparent 50%),
+    /* scattered dots */
+    radial-gradient(2px 2px at 25% 8%, rgba(212,140,140,0.15) 50%, transparent 50%),
+    radial-gradient(2px 2px at 60% 92%, rgba(212,140,140,0.12) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 45% 10%, rgba(212,140,140,0.10) 50%, transparent 50%),
+    /* base paper */
+    linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+}
+.album-item[data-index="0"] .frame .frame-img-wrap {
+  background: rgba(248, 230, 230, 0.20);
+}
+.album-item[data-index="0"] .frame::after {
+  content: '❀';
+  position: absolute;
+  top: -8px; left: -5px;
+  font-size: 16px;
+  color: rgba(212, 130, 140, 0.35);
+  text-shadow:
+    0 0 8px rgba(212, 130, 140, 0.15),
+    0 0 16px rgba(212, 130, 140, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 右上 · 金色 ── */
+.album-item[data-index="1"] .frame {
+  transform: rotate(2.5deg);
+  background:
+    /* TL */
+    radial-gradient(4px 4px at 14% 15%, rgba(200,160,80,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 12%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 12%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 14%, rgba(170,130,55,0.18) 50%, transparent 50%),
+    /* TR */
+    radial-gradient(4px 4px at 86% 15%, rgba(200,160,80,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 12%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 12%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 14%, rgba(170,130,55,0.18) 50%, transparent 50%),
+    /* BL */
+    radial-gradient(4px 4px at 14% 85%, rgba(200,160,80,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 82%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 82%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 84%, rgba(170,130,55,0.18) 50%, transparent 50%),
+    /* BR */
+    radial-gradient(4px 4px at 86% 85%, rgba(200,160,80,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 82%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 82%, rgba(200,160,80,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 84%, rgba(170,130,55,0.18) 50%, transparent 50%),
+    /* scattered */
+    radial-gradient(2px 2px at 32% 90%, rgba(200,160,80,0.15) 50%, transparent 50%),
+    radial-gradient(2px 2px at 70% 8%, rgba(200,160,80,0.12) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 55% 92%, rgba(200,160,80,0.10) 50%, transparent 50%),
+    linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+}
+.album-item[data-index="1"] .frame .frame-img-wrap {
+  background: rgba(245, 235, 215, 0.20);
+}
+.album-item[data-index="1"] .frame::after {
+  content: '✿';
+  position: absolute;
+  top: -8px; right: -5px;
+  font-size: 16px;
+  color: rgba(200, 160, 80, 0.35);
+  text-shadow:
+    0 0 8px rgba(200, 160, 80, 0.15),
+    0 0 16px rgba(200, 160, 80, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 居中 · 紫韵（放大）── */
+.album-item[data-index="2"] .frame {
+  transform: rotate(0.5deg);
+  box-shadow:
+    0 0 0 1px rgba(160, 130, 180, 0.12),
+    0 0 0 4px rgba(255, 252, 248, 0.85),
+    0 0 0 5px rgba(160, 130, 180, 0.08),
+    0 0 0 7px rgba(255, 255, 255, 0.10),
+    0 10px 36px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  background:
+    /* TL */
+    radial-gradient(4px 4px at 14% 15%, rgba(150,110,175,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 12%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 12%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 14%, rgba(120,80,145,0.18) 50%, transparent 50%),
+    /* TR */
+    radial-gradient(4px 4px at 86% 15%, rgba(150,110,175,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 12%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 12%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 14%, rgba(120,80,145,0.18) 50%, transparent 50%),
+    /* BL */
+    radial-gradient(4px 4px at 14% 85%, rgba(150,110,175,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 82%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 82%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 84%, rgba(120,80,145,0.18) 50%, transparent 50%),
+    /* BR */
+    radial-gradient(4px 4px at 86% 85%, rgba(150,110,175,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 82%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 82%, rgba(150,110,175,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 84%, rgba(120,80,145,0.18) 50%, transparent 50%),
+    /* scattered */
+    radial-gradient(2.5px 2.5px at 20% 18%, rgba(150,110,175,0.15) 50%, transparent 50%),
+    radial-gradient(2px 2px at 78% 82%, rgba(150,110,175,0.12) 50%, transparent 50%),
+    radial-gradient(2px 2px at 50% 12%, rgba(150,110,175,0.10) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 70% 20%, rgba(150,110,175,0.08) 50%, transparent 50%),
+    linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+}
+.album-item[data-index="2"] .frame .frame-img-wrap {
+  background: rgba(235, 225, 245, 0.20);
+}
+.album-item[data-index="2"] .frame::after {
+  content: '✦';
+  position: absolute;
+  top: -10px; left: -5px;
+  font-size: 18px;
+  color: rgba(150, 110, 175, 0.35);
+  text-shadow:
+    0 0 10px rgba(150, 110, 175, 0.18),
+    0 0 20px rgba(150, 110, 175, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 左下 · 浅绿 ── */
+.album-item[data-index="3"] .frame {
+  transform: rotate(4deg);
+  background:
+    /* TL */
+    radial-gradient(4px 4px at 14% 15%, rgba(125,185,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 12%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 12%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 14%, rgba(95,150,110,0.18) 50%, transparent 50%),
+    /* TR */
+    radial-gradient(4px 4px at 86% 15%, rgba(125,185,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 12%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 12%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 14%, rgba(95,150,110,0.18) 50%, transparent 50%),
+    /* BL */
+    radial-gradient(4px 4px at 14% 85%, rgba(125,185,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 82%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 82%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 84%, rgba(95,150,110,0.18) 50%, transparent 50%),
+    /* BR */
+    radial-gradient(4px 4px at 86% 85%, rgba(125,185,140,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 82%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 82%, rgba(125,185,140,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 84%, rgba(95,150,110,0.18) 50%, transparent 50%),
+    /* scattered */
+    radial-gradient(2px 2px at 35% 10%, rgba(125,185,140,0.15) 50%, transparent 50%),
+    radial-gradient(2px 2px at 65% 88%, rgba(125,185,140,0.12) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 20% 90%, rgba(125,185,140,0.10) 50%, transparent 50%),
+    linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+}
+.album-item[data-index="3"] .frame .frame-img-wrap {
+  background: rgba(225, 242, 232, 0.20);
+}
+.album-item[data-index="3"] .frame::after {
+  content: '❁';
+  position: absolute;
+  bottom: -8px; left: -5px;
+  font-size: 16px;
+  color: rgba(125, 185, 140, 0.35);
+  text-shadow:
+    0 0 8px rgba(125, 185, 140, 0.15),
+    0 0 16px rgba(125, 185, 140, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── 右下 · 杏色 ── */
+.album-item[data-index="4"] .frame {
+  transform: rotate(-2deg);
+  background:
+    /* TL */
+    radial-gradient(4px 4px at 14% 15%, rgba(210,160,120,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 12%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 12%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 14%, rgba(175,125,90,0.18) 50%, transparent 50%),
+    /* TR */
+    radial-gradient(4px 4px at 86% 15%, rgba(210,160,120,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 12%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 12%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 14%, rgba(175,125,90,0.18) 50%, transparent 50%),
+    /* BL */
+    radial-gradient(4px 4px at 14% 85%, rgba(210,160,120,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 17% 82%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 11% 82%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 14% 84%, rgba(175,125,90,0.18) 50%, transparent 50%),
+    /* BR */
+    radial-gradient(4px 4px at 86% 85%, rgba(210,160,120,0.20) 50%, transparent 50%),
+    radial-gradient(3px 3px at 83% 82%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(3px 3px at 89% 82%, rgba(210,160,120,0.14) 50%, transparent 50%),
+    radial-gradient(2.5px 2.5px at 86% 84%, rgba(175,125,90,0.18) 50%, transparent 50%),
+    /* scattered */
+    radial-gradient(2px 2px at 25% 90%, rgba(210,160,120,0.15) 50%, transparent 50%),
+    radial-gradient(2px 2px at 72% 10%, rgba(210,160,120,0.12) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 55% 12%, rgba(210,160,120,0.10) 50%, transparent 50%),
+    linear-gradient(155deg, #fefdf8 0%, #fef8ef 35%, #fef4e6 100%);
+}
+.album-item[data-index="4"] .frame .frame-img-wrap {
+  background: rgba(245, 232, 222, 0.20);
+}
+.album-item[data-index="4"] .frame::after {
+  content: '✿';
+  position: absolute;
+  bottom: -8px; right: -5px;
+  font-size: 16px;
+  color: rgba(210, 160, 120, 0.35);
+  text-shadow:
+    0 0 8px rgba(210, 160, 120, 0.15),
+    0 0 16px rgba(210, 160, 120, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---- 入场动画 ---- */
+/* 非中心项：常规滑入 */
+.album-page.open .album-item:not([data-index="2"]) {
+  animation: albumItemIn 0.5s ease-out both;
+}
+.album-page.open .album-item[data-index="0"] { animation-delay: 0.02s; }
+.album-page.open .album-item[data-index="1"] { animation-delay: 0.10s; }
+.album-page.open .album-item[data-index="3"] { animation-delay: 0.26s; }
+.album-page.open .album-item[data-index="4"] { animation-delay: 0.34s; }
+
+/* 中心项：保留 translate(-50%,-50%)，避免向右下掉落 */
+.album-page.open .album-item[data-index="2"] {
+  animation-name: centerItemIn;
+  animation-delay: 0.18s;
+}
+
+@keyframes albumItemIn {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes centerItemIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(1.05); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+}
+
+/* ================================================================
+   花瓣容器 — 加载时覆盖遮罩
+   ================================================================ */
+
+#petalsContainer {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;   /* 高于 loadingOverlay(1000)，加载时就可见 */
+  pointer-events: none;
+  overflow: hidden;
+}
+#petalsContainer.behind {
+  z-index: 10;     /* 加载结束后降回内容层 */
+}
+
+/* ================================================================
+   通用弹窗（天气详情）
+   ================================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.modal-overlay.open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.30);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: backdrop-filter 0.6s ease, -webkit-backdrop-filter 0.6s ease;
+}
+.modal-overlay.open .modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-wrap {
+  position: relative;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  padding: 36px 24px 24px;
+  min-width: 240px;
+  max-width: 380px;
+  transform: scale(0.88) translateY(24px);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.modal-overlay.open .modal-wrap {
+  transform: scale(1) translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, color 0.3s;
+  outline: none;
+}
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.20);
+  color: #fff;
+}
+
+.modal-title {
+  font-weight: 900;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 3px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+/* ================================================================
+   天气详情弹窗
+   ================================================================ */
+
+.weather-detail {
+  max-width: 360px;
+}
+
+.weather-cities {
+  display: flex;
+  gap: 14px;
+}
+
+.weather-city-card {
+  flex: 1;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 22px 12px 18px;
+  transition: background 0.3s;
+}
+.weather-city-card:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.weather-card-name {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.weather-card-icon {
+  margin-bottom: 6px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.weather-card-icon svg {
+  display: block;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.10));
+}
+
+.weather-card-temp {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+.weather-card-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+  letter-spacing: 1px;
+	}
+
+/* ---- 验证后便签卡片（可爱字体 + 暖色纸纹） ---- */
+.note-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  background: linear-gradient(155deg, #fef8ed 0%, #fdf0e0 40%, #fef6eb 100%);
+  border-radius: 18px;
+  padding: 30px 26px 24px;
+  max-width: 420px;
+  width: 88vw;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.10),
+              inset 0 1px 0 rgba(255,255,255,0.7);
+  font-family: 'ZCOOL KuaiLe', cursive;
+  pointer-events: none;
+  /* GSAP 控制动画（opacity / scale / xPercent / yPercent） */
+}
+.note-card.show {
+  pointer-events: auto;
+}
+.note-body {
+  color: #5a4f44;
+  font-size: 15px;
+  line-height: 1.9;
+  letter-spacing: 1px;
+}
+.note-body p {
+  margin-bottom: 10px;
+  text-indent: 2em;
+}
+.note-body p:first-child {
+  text-indent: 0;
+  text-align: center;
+  font-size: 19px;
+  margin-bottom: 12px;
+}
+.note-body p:first-child::before {
+  content: '🎓 ';
+}
+.note-confirm {
+  display: block;
+  margin-left: auto;
+  margin-top: 14px;
+  padding: 7px 28px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(212, 163, 115, 0.25);
+  color: #8a7a6a;
+  font-family: 'ZCOOL KuaiLe', cursive;
+  font-size: 15px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  outline: none;
+}
+.note-confirm:hover {
+  background: rgba(212, 163, 115, 0.40);
+  transform: scale(1.04);
+}
+.note-confirm:active {
+  transform: scale(0.96);
+}
+
+/* ---- 枫树彩蛋浮动提示 ---- */
+.easter-tip {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.65);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  animation: tipFloatUp 2.8s ease-out forwards;
+}
+@keyframes tipFloatUp {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateY(-50px) scale(1); }
+  100% { opacity: 0; transform: translateY(-90px) scale(0.9); }
+}
+
+/* ================================================================
+   校园建筑 Canvas（页面底部）
+   ================================================================ */
+.layer-campus {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 200px;
+  z-index: 5;
+  pointer-events: auto;
+  opacity: 0;
+}
+

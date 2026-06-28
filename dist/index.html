@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>给佳琪 · 毕业祝福</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;900&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-DWPz8gYa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DbAIgVPd.css">
+</head>
+<body>
+  <!-- === 验证遮罩 === -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-box">
+      <div class="loading-heart">&#10022;</div>
+      <div class="loading-title">专属祝福</div>
+      <p class="loading-hint">输入好友名字验证</p>
+      <input type="text" id="nameInput" class="name-input" placeholder="输入名字 ..." maxlength="20" autocomplete="off">
+      <button id="verifyBtn" class="verify-btn">进入</button>
+      <p class="loading-error" id="loadingError"></p>
+      <p class="loading-foot">— 献给我的好朋友 —</p>
+    </div>
+  </div>
+
+  <!-- === 暮色叠层（验证通过后渐显）=== -->
+  <div id="skyOverlay" class="sky-overlay"></div>
+
+  <!-- === 画布层（噪点 + 雨滴 + 光斑 + 拖尾）=== -->
+  <canvas id="noiseCanvas" class="layer-noise"></canvas>
+  <canvas id="mainCanvas" class="layer-main"></canvas>
+
+  <!-- === 烟花 Canvas === -->
+  <canvas id="fireworksCanvas" class="layer-fireworks"></canvas>
+
+  <!-- === 天气面板 === -->
+  <div class="weather-panel left" id="weatherLeft">
+    <div class="weather-icon" id="weatherIconL"></div>
+    <div class="weather-info">
+      <span class="weather-city">广州 · 广软</span>
+      <span class="weather-temp" id="tempL">--°C</span>
+    </div>
+  </div>
+  <div class="weather-panel right" id="weatherRight">
+    <div class="weather-icon" id="weatherIconR"></div>
+    <div class="weather-info">
+      <span class="weather-city">昆明 · 云师</span>
+      <span class="weather-temp" id="tempR">--°C</span>
+    </div>
+  </div>
+
+  <!-- === 中心文字 === -->
+  <div class="center-group">
+    <h1 class="main-title" id="mainTitle">毕业快乐</h1>
+    <h2 class="sub-title" id="subTitle">
+      <span>愿</span><span>我</span><span>们</span><span>顶</span><span>峰</span><span>相</span><span>见</span>
+    </h2>
+  </div>
+
+  <!-- === 距离显示 === -->
+  <div class="distance-section" id="distanceSection">
+    <div class="distance-number" id="distanceNumber">0</div>
+    <div class="distance-unit">
+      公里
+      <span class="distance-desc">广软 → 云师</span>
+    </div>
+  </div>
+
+  <!-- === 底部小字 === -->
+  <div class="footer-text">山海虽远，祝福即达</div>
+  <div class="meet-count" id="meetCount">
+    <span class="meet-count-label">我们相识</span>
+    <span class="meet-count-number" id="meetCountNumber">0</span>
+    <span class="meet-count-label">天</span>
+  </div>
+  <div class="clock-display" id="clockDisplay"></div>
+
+  <!-- === 花瓣容器 === -->
+  <div id="petalsContainer" aria-hidden="true"></div>
+
+  <!-- === 右侧换页按钮 === -->
+  <button id="sideTab" class="side-tab" aria-label="菜单">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+
+  <!-- === 右侧面板 === -->
+  <div id="sidePanel" class="side-panel">
+    <button id="panelClose" class="panel-close" aria-label="关闭">✕</button>
+
+    <div class="panel-icons">
+      <!-- 书信 -->
+      <button id="letterBtn" class="panel-btn" title="一封信">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round">
+          <rect x="6" y="12" width="36" height="26" rx="2"/>
+          <polyline points="6,14 24,28 42,14"/>
+        </svg>
+        <span class="panel-btn-label">一封信</span>
+      </button>
+      <!-- 相册 -->
+      <button id="albumBtn" class="panel-btn" title="相册">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round">
+          <rect x="8" y="12" width="32" height="26" rx="2"/>
+          <circle cx="18" cy="22" r="3"/>
+          <polyline points="8,34 18,26 26,32 34,24 40,30"/>
+        </svg>
+        <span class="panel-btn-label">相册</span>
+      </button>
+      <!-- 烟花 -->
+      <button id="fireworkBtn" class="panel-btn" title="烟花">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M24 8l3 9 9-2-7 8 5 10-10-4-10 4 5-10-7-8 9 2z"/>
+        </svg>
+        <span class="panel-btn-label">烟花</span>
+      </button>
+      <!-- 孔明灯 -->
+      <button id="lanternBtn" class="panel-btn" title="孔明灯">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M24 8c-6 0-11 3-11 10 0 4 2 7 4 10l7 12 7-12c2-3 4-6 4-10 0-7-5-10-11-10z"/>
+          <line x1="22" y1="12" x2="26" y2="12"/>
+          <line x1="23" y1="16" x2="25" y2="16"/>
+          <path d="M19 18c2 2 5 3 9 0"/>
+        </svg>
+        <span class="panel-btn-label">孔明灯</span>
+      </button>
+      <!-- 音乐 -->
+      <button id="musicBtn" class="panel-btn" title="音乐">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 36V12l22-4v24"/>
+          <circle cx="14" cy="36" r="6"/>
+          <circle cx="36" cy="32" r="6"/>
+        </svg>
+        <span class="panel-btn-label">音乐</span>
+      </button>
+      <!-- 天气 -->
+      <button id="weatherBtn" class="panel-btn" title="天气">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="18" r="5"/>
+          <path d="M24 8v2M24 26v2M14 18h-2M34 18h-2M17.5 11.5l-1.5-1.5M32 28l-1.5-1.5M30.5 11.5l1.5-1.5M16 28l1.5-1.5"/>
+          <path d="M28 30h8a4 4 0 0 0 0-8h-1a7 7 0 0 0-13-3"/>
+          <path d="M18 30h-4a4 4 0 0 1 0-8h1a7 7 0 0 1 13-3"/>
+        </svg>
+        <span class="panel-btn-label">天气</span>
+      </button>
+      <!-- 自定义 -->
+      <button id="settingsBtn" class="panel-btn" title="自定义">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="5"/>
+          <path d="M24 5v6M24 37v6M5 24h6M37 24h6M9.5 9.5l4.2 4.2M34.3 34.3l4.2 4.2M9.5 38.5l4.2-4.2M34.3 13.7l4.2-4.2"/>
+        </svg>
+        <span class="panel-btn-label">自定义</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- === 自定义设置弹窗 === -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-backdrop" id="settingsBackdrop"></div>
+    <div class="modal-wrap settings-modal">
+      <button class="modal-close" id="settingsModalClose">✕</button>
+      <h3 class="modal-title">⚙ 自定义</h3>
+      <div class="sm-body">
+        <!-- 主开关 -->
+        <div class="sm-toggle-row">
+          <span class="sm-label">启用自定义</span>
+          <label class="st-toggle">
+            <input type="checkbox" id="stMaster">
+            <span class="st-toggle-slider"></span>
+          </label>
+        </div>
+        <!-- 开关打开后缓缓出现的选项 -->
+        <div class="sm-options" id="settingsOptions">
+          <!-- 天气色调 -->
+          <div class="sm-group">
+            <div class="sm-group-title">天气色调</div>
+            <label class="st-opt"><input type="radio" name="stTheme" value="auto" checked><span class="st-dot"></span>跟随天气</label>
+            <label class="st-opt"><input type="radio" name="stTheme" value="sunny"><span class="st-dot"></span>晴天</label>
+            <label class="st-opt"><input type="radio" name="stTheme" value="rainy"><span class="st-dot"></span>雨天</label>
+          </div>
+          <!-- 天气效果 -->
+          <div class="sm-group">
+            <div class="sm-group-title">天气效果</div>
+            <label class="st-opt"><input type="checkbox" id="stEffectRain" checked><span class="st-cb"></span>雨滴效果</label>
+            <label class="st-opt"><input type="checkbox" id="stEffectSpots" checked><span class="st-cb"></span>光斑效果</label>
+            <label class="st-opt"><input type="checkbox" id="stEffectPetals" checked><span class="st-cb"></span>花瓣飘落</label>
+          </div>
+          <!-- 界面模式 -->
+          <div class="sm-group">
+            <div class="sm-group-title">界面模式</div>
+            <label class="st-opt"><input type="radio" name="stDaynight" value="auto" checked><span class="st-dot"></span>跟随时间</label>
+            <label class="st-opt"><input type="radio" name="stDaynight" value="day"><span class="st-dot"></span>日间</label>
+            <label class="st-opt"><input type="radio" name="stDaynight" value="night"><span class="st-dot"></span>夜间</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 居中信纸弹窗 === -->
+  <div id="letterModal" class="letter-modal">
+    <div class="letter-modal-backdrop" id="letterBackdrop"></div>
+    <div class="letter-modal-wrap">
+      <button class="letter-modal-close" id="letterModalClose" aria-label="关闭信纸">✕</button>
+      <div class="letter-paper">
+        <div class="letter-header">给佳琪</div>
+        <div class="letter-body">
+          <p>亲爱的佳琪：</p>
+          <p>毕业快乐！</p>
+          <p>四年的时光像夏天的风一样匆匆吹过。从广软到云师，从广州到昆明，一千多公里的距离，丝毫没有冲淡我们的友情。</p>
+          <p>还记得那些一起走过的日子吗？那些笑声、那些深夜的长谈、那些互相鼓励的瞬间，都是我青春里最珍贵的片段。</p>
+          <p>如今你即将踏上新的旅程，愿你前程似锦，万事胜意。去更远的地方，见更亮的光。</p>
+          <p>山海虽远，祝福即达。</p>
+          <p class="letter-sign">—— 你的朋友</p>
+          <div class="letter-seal-row"><div class="letter-seal">琪</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 天气详情弹窗 === -->
+  <div id="weatherModal" class="modal-overlay">
+    <div class="modal-backdrop" id="weatherBackdrop"></div>
+    <div class="modal-wrap weather-detail">
+      <button class="modal-close" id="weatherModalClose" aria-label="关闭天气">✕</button>
+      <h3 class="modal-title">🌤 两地天气</h3>
+      <div class="weather-cities">
+        <div class="weather-city-card" id="weatherCardL">
+          <div class="weather-card-name">广州 · 广软</div>
+          <div class="weather-card-icon" id="weatherDetailIconL"></div>
+          <div class="weather-card-temp" id="weatherDetailTempL">--°C</div>
+          <div class="weather-card-desc" id="weatherDetailDescL">--</div>
+        </div>
+        <div class="weather-city-card" id="weatherCardR">
+          <div class="weather-card-name">昆明 · 云师</div>
+          <div class="weather-card-icon" id="weatherDetailIconR"></div>
+          <div class="weather-card-temp" id="weatherDetailTempR">--°C</div>
+          <div class="weather-card-desc" id="weatherDetailDescR">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 相册全屏页面 === -->
+  <div id="albumPage" class="album-page">
+    <div class="album-page-header">
+      <button class="album-page-back" id="albumPageBack">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        返回
+      </button>
+      <h2 class="album-page-title">回忆相册</h2>
+      <div class="album-page-actions">
+        <label class="album-page-upload-label" id="albumUploadLabel">
+          <input type="file" id="albumFileInput" accept="image/*" class="album-file-input">
+          <span class="album-page-upload-btn">＋ 上传照片</span>
+        </label>
+        <span class="album-page-count" id="albumCount">0 / 5</span>
+      </div>
+    </div>
+
+    <div class="album-page-body" id="albumPageBody">
+      <div class="album-layout" id="albumGrid">
+        <!-- 四角一中 · 花边相框 -->
+        <div class="album-item" data-index="0">
+          <div class="frame">
+            <div class="frame-img-wrap">
+              <img class="frame-img" alt="照片 1">
+            </div>
+          </div>
+        </div>
+        <div class="album-item" data-index="1">
+          <div class="frame">
+            <div class="frame-img-wrap">
+              <img class="frame-img" alt="照片 2">
+            </div>
+          </div>
+        </div>
+        <div class="album-item" data-index="2">
+          <div class="frame frame-center">
+            <div class="frame-img-wrap">
+              <img class="frame-img" alt="照片 3">
+            </div>
+          </div>
+        </div>
+        <div class="album-item" data-index="3">
+          <div class="frame">
+            <div class="frame-img-wrap">
+              <img class="frame-img" alt="照片 4">
+            </div>
+          </div>
+        </div>
+        <div class="album-item" data-index="4">
+          <div class="frame">
+            <div class="frame-img-wrap">
+              <img class="frame-img" alt="照片 5">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
