@@ -120,6 +120,7 @@
   <div id="petalsContainer" aria-hidden="true"></div>
 
   <!-- === 右侧换页按钮 === -->
+  <div id="cursorFollower" class="cursor-follower"></div>
   <button id="sideTab" class="side-tab" aria-label="菜单">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <line x1="4" y1="6" x2="20" y2="6"/>
@@ -165,6 +166,17 @@
           <circle cx="36" cy="32" r="6"/>
         </svg>
         <span class="panel-btn-label">音乐</span>
+      </button>
+      <!-- 全屏 -->
+      <button id="fullscreenBtn" class="panel-btn" title="全屏">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 8H8v8M32 8h8v8M8 32v8h8M40 32v8h-8"/>
+          <line x1="8" y1="8" x2="20" y2="20"/>
+          <line x1="40" y1="8" x2="28" y2="20"/>
+          <line x1="8" y1="40" x2="20" y2="28"/>
+          <line x1="40" y1="40" x2="28" y2="28"/>
+        </svg>
+        <span class="panel-btn-label">全屏</span>
       </button>
       <!-- 自定义 -->
       <button id="settingsBtn" class="panel-btn" title="自定义">
@@ -227,9 +239,9 @@
     <div class="letter-modal-wrap">
       <button class="letter-modal-close" id="letterModalClose" aria-label="关闭信纸">✕</button>
       <div class="letter-paper">
-        <div class="letter-header">To My Dearest Jiaqi</div>
+        <div class="letter-header">To My Dearest <span class="_ne"></span></div>
                 <div class="letter-body">
-          <p>亲爱的陆佳琪：</p>
+          <p>亲爱的<span class="_nf"></span>：</p>
           <p>毕业快乐！</p>
           <p>展信舒颜，见字如面。</p>
           <p>时间总是过得很快，没想到这都已经毕业了，细细想来，我们认识也快两年了。即便从未见过面，但我说过，我永远对你保持着一份炙热。</p>

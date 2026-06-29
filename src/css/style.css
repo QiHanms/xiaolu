@@ -23,7 +23,9 @@ html, body {
   color: #fff;
   user-select: none;
   -webkit-user-select: none;
+  cursor: none !important;
 }
+* { cursor: none !important; }
 
 /* ---- 学士帽主题色变量（跟随天气/日夜，仅深浅两色，和建筑一致） ---- */
 :root {
@@ -1710,5 +1712,18 @@ body.weather-rainy .letter-seal {
   z-index: 5;
   pointer-events: auto;
   opacity: 0;
+}
+
+/* ---- 自定义鼠标光点 ---- */
+.cursor-follower {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255,215,0,0.5), 0 0 12px rgba(255,215,0,0.2);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
 }
 

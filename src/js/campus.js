@@ -21,6 +21,7 @@ export class CampusScene {
     this._seed = Math.random() * 1000; // 固定随机种子，稳定窗户状态
     this._treePositions = []; // 枫树位置，用于点击检测
     this._onEasterEgg = onEasterEgg; // 第7棵枫树彩蛋回调
+    this._lastTheme = 'sunny';
     this._resize();
     window.addEventListener('resize', () => this._resize());
     this.draw('sunny');
@@ -47,8 +48,8 @@ export class CampusScene {
     this._w = w;
     this.canvas.width = w;
     this.canvas.height = this._h;
-    // resize 时重新生成种子让布局稳定
     this._seed = Math.random() * 1000;
+    this.draw(this._lastTheme);
   }
 
   /** 伪随机（基于种子） */
@@ -58,6 +59,7 @@ export class CampusScene {
 
   /** 重绘（天气变化时调用） */
   draw(theme = 'sunny') {
+    this._lastTheme = theme;
     const ctx = this.ctx;
     const w = this._w;
     const h = this._h;

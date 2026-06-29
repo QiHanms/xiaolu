@@ -2,7 +2,7 @@
  * 毕业祝福 · 入口文件
  *
  * 流程：
- *   1. 显示验证遮罩（输入 "陆佳琪"）
+ *   1. 显示验证遮罩（输入姓名通过哈希校验）
  *   2. 验证通过 → 遮罩淡出
  *   3. 初始化 Canvas / 天气 / 花瓣 / 音频
  *   4. GSAP 主时间线启动
@@ -23,9 +23,16 @@ import { FireworkSystem }               from './js/fireworks.js';
 import { initAlbum }                     from './js/album.js';
 import { startPetals }                   from './js/petals.js';
 import { CampusScene }                   from './js/campus.js';
+import { TITLE_TEXT }                     from './config/names.js';
 
-/* ---- 验证口令 ---- */
-const SECRET_NAME = '陆佳琪';
+/* ---- 验证口令（哈希校验，源码不暴露真实姓名） ---- */
+const SECRET_HASH = 'f6f17801fef69a47872132b4094cb2ba0ee2905dba1b8d6df8c564487b4859aa';
+
+async function sha256(str) {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 /* ================================================================
    验证逻辑
@@ -45,16 +52,16 @@ function setupVerification(onPass) {
     setTimeout(() => box.classList.remove('shake'), 500);
   };
 
-  const verify = () => {
+  const verify = async () => {
     const val = input.value.trim();
     if (!val) { err.textContent = '请输入名字～'; shake(); return; }
-    if (val === SECRET_NAME) {
+    if (await sha256(val) === SECRET_HASH) {
       err.textContent = '';
       // 验证通过后立即播放音乐（在用户点击手势内）
       const { playBgm } = initAudio();
       playBgm();
       // 验证通过，显示名字在标题
-      document.title = '独属于小陆同学的大学毕业祝贺';
+      document.title = TITLE_TEXT;
 
       // 输入框元素逐个缓缓渐隐
       gsap.to('#nameInput, #verifyBtn', {
@@ -290,3 +297,15 @@ initPanel();
 startPetals(20);
 
 setupVerification(startMainApp);
+
+/* ---- 自定义鼠标光点 ---- */
+(function initCursor() {
+  const dot = document.getElementById('cursorFollower');
+  if (!dot) return;
+  let raf = null;
+
+  document.addEventListener('mousemove', (e) => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+  });
+})();

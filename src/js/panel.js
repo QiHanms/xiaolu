@@ -18,6 +18,7 @@
 
 import { getWeatherCache, applyWeatherTheme, getRainIntensity } from './weather.js';
 import { startPetals, stopPetals, arePetalsActive } from './petals.js';
+import { ENGLISH_NAME, FULL_NAME } from '../config/names.js';
 /* ---- 设置状态 ---- */
 let canvasCtrl = null;
 
@@ -114,6 +115,7 @@ export function initPanel() {
   const panel  = document.getElementById('sidePanel');
   const close  = document.getElementById('panelClose');
   const letterBtn  = document.getElementById('letterBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
   const musicBtn   = document.getElementById('musicBtn');
   const settingsBtn = document.getElementById('settingsBtn');
 
@@ -129,7 +131,17 @@ export function initPanel() {
   const modalClose  = document.getElementById('letterModalClose');
 
   if (letterBtn && letterModal) {
-    letterBtn.addEventListener('click', () => { letterModal.classList.add('open'); });
+    letterBtn.addEventListener('click', () => {
+      // 填入姓名占位（仅首次）
+      if (!letterModal.dataset.namesSet) {
+        const el = letterModal.querySelector('._ne');
+        if (el) el.textContent = ENGLISH_NAME;
+        const ef = letterModal.querySelectorAll('._nf');
+        ef.forEach(e => e.textContent = FULL_NAME);
+        letterModal.dataset.namesSet = '1';
+      }
+      letterModal.classList.add('open');
+    });
     const closeLetter = () => letterModal.classList.remove('open');
     if (modalClose) modalClose.addEventListener('click', closeLetter);
     if (backdrop)   backdrop.addEventListener('click', closeLetter);
@@ -150,6 +162,39 @@ export function initPanel() {
         musicBtn.style.borderColor = '#FFD700';
       }
     });
+  }
+
+  /* ---- 全屏切换 ---- */
+  if (fullscreenBtn) {
+    const fsIcon = () => {
+      const isFull = !!document.fullscreenElement;
+      fullscreenBtn.innerHTML = isFull
+        ? `<svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 16h-6v-6M32 16h6v-6M16 32h-6v6M32 32h6v6"/>
+            <line x1="10" y1="10" x2="22" y2="22"/>
+            <line x1="38" y1="10" x2="26" y2="22"/>
+            <line x1="10" y1="38" x2="22" y2="26"/>
+            <line x1="38" y1="38" x2="26" y2="26"/>
+          </svg>
+          <span class="panel-btn-label">还原</span>`
+        : `<svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8H8v8M32 8h8v8M8 32v8h8M40 32v8h-8"/>
+            <line x1="8" y1="8" x2="20" y2="20"/>
+            <line x1="40" y1="8" x2="28" y2="20"/>
+            <line x1="8" y1="40" x2="20" y2="28"/>
+            <line x1="40" y1="40" x2="28" y2="28"/>
+          </svg>
+          <span class="panel-btn-label">全屏</span>`;
+    };
+    fullscreenBtn.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        document.documentElement.requestFullscreen();
+      }
+    });
+    document.addEventListener('fullscreenchange', fsIcon);
+    fsIcon();
   }
 
   /* ================================================================
