@@ -87,7 +87,7 @@ const WEATHER_SVG = {
   </svg>`
 };
 
-function iconHTML(condition) {
+export function iconHTML(condition) {
   return WEATHER_SVG[condition] || WEATHER_SVG.cloudy;
 }
 
@@ -124,8 +124,10 @@ export async function fetchAllWeather() {
 
 /* ---------- 访客本地定位天气（决定主题） ---------- */
 
+let userWeatherData = { temp: '--', text: '未知', condition: 'sunny', weathercode: 0 };
+
 /**
- * 获取访客地理位置 → 查询 Open-Meteo → 更新 userCondition
+ * 获取访客地理位置 → 查询 Open-Meteo → 更新 userWeatherData
  * 定位失败或拒绝时回退 sunny
  */
 export async function fetchUserWeather() {
@@ -141,13 +143,20 @@ export async function fetchUserWeather() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     const cw = json.current_weather;
-    userCondition = wmoToCondition(cw.weathercode);
-    userWeathercode = cw.weathercode;
+    userWeatherData = {
+      temp: Math.round(cw.temperature).toString(),
+      text: wmoToDescription(cw.weathercode),
+      condition: wmoToCondition(cw.weathercode),
+      weathercode: cw.weathercode
+    };
+    userCondition = userWeatherData.condition;
+    userWeathercode = userWeatherData.weathercode;
   } catch (_) {
+    userWeatherData = { temp: '--', text: '未知', condition: 'sunny', weathercode: 0 };
     userCondition = 'sunny';
     userWeathercode = 0;
   }
-  return { condition: userCondition, weathercode: userWeathercode };
+  return userWeatherData;
 }
 
 /** 获取访客当前的天气条件 */
@@ -157,6 +166,11 @@ export function getUserCondition() {
 
 export function getUserWeathercode() {
   return userWeathercode;
+}
+
+/** 获取完整访客天气数据 */
+export function getUserWeather() {
+  return userWeatherData;
 }
 
 

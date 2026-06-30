@@ -54,13 +54,25 @@ export default class CanvasController {
     this.trailParticles = [];
     this.time = 0;
     this.animFrame = null;
+    this._dpr = Math.min(window.devicePixelRatio || 1, 2);
     this._resize();
-    addEventListener('resize', () => this._resize());
+    this._resizeTimer = null;
+    addEventListener('resize', () => {
+      if (this._resizeTimer) cancelAnimationFrame(this._resizeTimer);
+      this._resizeTimer = requestAnimationFrame(() => this._resize());
+    });
   }
 
   _resize() {
-    this.canvas.width = innerWidth;
-    this.canvas.height = innerHeight;
+    const w = innerWidth;
+    const h = innerHeight;
+    this.canvas.width = w * this._dpr;
+    this.canvas.height = h * this._dpr;
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
+    this.ctx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
+    this._w = w;
+    this._h = h;
     generateNoise(this.noiseEl);
     this._initStars(80);
   }
@@ -71,7 +83,7 @@ export default class CanvasController {
 
   start() {
     this._initRain(150);
-    this._initSpots(18);
+    this._initSpots(12);
     this._initStars(80);
     const loop = (ts) => { this.time = ts; this._update(); this._draw(); this.animFrame = requestAnimationFrame(loop); };
     this.animFrame = requestAnimationFrame(loop);
@@ -96,7 +108,7 @@ export default class CanvasController {
     else if (level === 2) { count = 150; speedM = 1.0; sizeM = 1.0; }
     else { count = 250; speedM = 1.5; sizeM = 1.4; }
     this.rainDrops = Array.from({ length: count }, () => ({
-      x: rand(0, this.canvas.width), y: rand(-this.canvas.height, 0),
+      x: rand(0, this._w), y: rand(-this._h, 0),
       len: rand(6 * sizeM, 14 * sizeM),
       speed: rand(3 * speedM, 7 * speedM),
       t: rand(0.3 * sizeM, 0.7 * sizeM),
@@ -133,7 +145,7 @@ export default class CanvasController {
 
   _initRain(count) {
     this.rainDrops = Array.from({ length: count }, () => ({
-      x: rand(0, this.canvas.width), y: rand(-this.canvas.height, 0),
+      x: rand(0, this._w), y: rand(-this._h, 0),
       len: rand(6, 14), speed: rand(3, 7),
       t: rand(0.3, 0.7), o: rand(0.12, 0.28),
       angle: rand(-0.35, -0.10)    // 随机飘向角度（负值 = 左倾）
@@ -145,12 +157,12 @@ export default class CanvasController {
     for (const d of this.rainDrops) {
       d.y += d.speed;
       d.x += d.speed * d.angle;                 // 角度影响水平偏移
-      if (d.y > this.canvas.height + 20) {
+      if (d.y > this._h + 20) {
         d.y = -d.len - 10;
-        d.x = rand(0, this.canvas.width);
+        d.x = rand(0, this._w);
         d.angle = rand(-0.35, -0.10);            // 换位时重新随机角度
       }
-      if (d.x < -20) d.x = this.canvas.width + 20;
+      if (d.x < -20) d.x = this._w + 20;
     }
   }
 
@@ -187,10 +199,29 @@ export default class CanvasController {
 
   _initSpots(count) {
     this.lightSpots = Array.from({ length: count }, () => ({
-      x: rand(0, this.canvas.width), y: rand(0, this.canvas.height),
+      x: rand(0, this._w), y: rand(0, this._h),
       vx: rand(-0.15, 0.15), vy: rand(-0.15, 0.15),
       radius: rand(20, 50), baseO: rand(0.04, 0.1), phase: rand(0, Math.PI * 2)
     }));
+    this._buildSpotGradient();
+  }
+
+  /** 预生成光斑渐变纹理（避免每帧 createRadialGradient） */
+  _buildSpotGradient() {
+    const size = 100;
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    g.addColorStop(0, 'rgba(255,248,210,1)');
+    g.addColorStop(0.4, 'rgba(255,248,210,0.5)');
+    g.addColorStop(1, 'rgba(255,248,210,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+    ctx.fill();
+    this._spotGradient = c;
   }
 
   /* ================================================================
@@ -199,14 +230,16 @@ export default class CanvasController {
 
   _initStars(count) {
     this.stars = Array.from({ length: count }, () => ({
-      x: rand(0, this.canvas.width),
-      y: rand(0, this.canvas.height),
+      x: rand(0, this._w),
+      y: rand(0, this._h),
       size: rand(0.3, 1.2),
       baseAlpha: rand(0.3, 0.8),
       phase: rand(0, Math.PI * 2),
-      speed: rand(0.15, 1.0),
+      speed: rand(0.08, 0.35),
       warm: Math.random() < 0.3   // 30% 暖白，70% 冷白
     }));
+    // 预排序，避免每帧排序
+    this._sortedStars = [...this.stars].sort((a, b) => a.size - b.size);
   }
 
   _updateSpots() {
@@ -215,24 +248,23 @@ export default class CanvasController {
     for (const s of this.lightSpots) {
       s.x += s.vx; s.y += s.vy;
       s.curO = s.baseO * (0.5 + 0.5 * Math.sin(t + s.phase));
-      if (s.x < -s.radius) s.x = this.canvas.width + s.radius;
-      if (s.x > this.canvas.width + s.radius) s.x = -s.radius;
-      if (s.y < -s.radius) s.y = this.canvas.height + s.radius;
-      if (s.y > this.canvas.height + s.radius) s.y = -s.radius;
+      if (s.x < -s.radius) s.x = this._w + s.radius;
+      if (s.x > this._w + s.radius) s.x = -s.radius;
+      if (s.y < -s.radius) s.y = this._h + s.radius;
+      if (s.y > this._h + s.radius) s.y = -s.radius;
     }
   }
 
   _drawSpots() {
-    if (!this.spotsEnabled) return;
+    if (!this.spotsEnabled || !this._spotGradient) return;
     const ctx = this.ctx;
     for (const s of this.lightSpots) {
       if (!s.curO || s.curO < 0.01) continue;
-      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius);
-      g.addColorStop(0, `rgba(255,248,210,${s.curO})`);
-      g.addColorStop(0.4, `rgba(255,248,210,${s.curO * 0.5})`);
-      g.addColorStop(1, 'rgba(255,248,210,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = s.curO;
+      const r2 = s.radius * 2;
+      ctx.drawImage(this._spotGradient, s.x - s.radius, s.y - s.radius, r2, r2);
     }
+    ctx.globalAlpha = 1;
   }
 
   /* ================================================================
@@ -244,9 +276,8 @@ export default class CanvasController {
     const ctx = this.ctx;
     const t = this.time * 0.001;
 
-    // 先画较大的星星（带光晕），再画小星星
-    const sorted = [...this.stars].sort((a, b) => a.size - b.size);
-    for (const s of sorted) {
+    // 先画较大的星星（带光晕），再画小星星（已预排序）
+    for (const s of this._sortedStars) {
       // 非对称呼吸：sine² 在 0~1 之间，闪亮时长更短更锐利
       const wave = Math.sin(t * s.speed * Math.PI + s.phase);
       const breathe = wave * wave; // 0 → 1 → 0
@@ -300,8 +331,8 @@ export default class CanvasController {
     const speed = rand(22, 38);      // 像素/帧（更快）
     const maxLife = rand(26, 44);    // 帧数
     this.shootingStars.push({
-      x: rand(this.canvas.width * 0.5, this.canvas.width),  // 从右侧天空出现
-      y: rand(0, this.canvas.height * 0.28),
+      x: rand(this._w * 0.5, this._w),  // 从右侧天空出现
+      y: rand(0, this._h * 0.28),
       vx: -Math.cos(angle) * speed,  // 向左坠落
       vy: Math.sin(angle) * speed,   // 向下
       life: maxLife,
@@ -390,7 +421,7 @@ export default class CanvasController {
 
   _draw() {
     const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.clearRect(0, 0, this._w, this._h);
     if (this.sunEnabled) this._drawSun();
     this._drawRain();
     this._drawStars();
@@ -403,7 +434,7 @@ export default class CanvasController {
   /** 晴日暖阳—可见太阳 + 旋转光线 */
   _drawSun() {
     const ctx = this.ctx;
-    const cx = this.canvas.width - 90;
+    const cx = this._w - 90;
     const cy = 75;
     const t = this.time * 0.0004;
 

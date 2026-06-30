@@ -16,7 +16,7 @@
  *   界面模式   — 自动 / 日间 / 夜间
  */
 
-import { getWeatherCache, applyWeatherTheme, getRainIntensity, getUserCondition, getUserWeathercode } from './weather.js';
+import { getWeatherCache, applyWeatherTheme, getRainIntensity, getUserCondition, getUserWeathercode, getUserWeather, iconHTML } from './weather.js';
 import { startPetals, stopPetals, arePetalsActive } from './petals.js';
 import { ENGLISH_NAME, FULL_NAME } from '../config/names.js';
 /* ---- 设置状态 ---- */
@@ -26,7 +26,6 @@ const settings = {
   enabled: false,    // 主开关
   theme: 'auto',     // auto | sunny | rainy
   rain: true,        // 雨滴
-  spots: true,       // 光斑
   petals: true,      // 花瓣
   daynight: 'auto'   // auto | day | night
 };
@@ -88,8 +87,8 @@ export function applyCurrentSettings(weatherData) {
     canvasCtrl.rainDrops = [];
   }
 
-  /* ---- 光斑（仅白天晴天） ---- */
-  canvasCtrl.spotsEnabled = effectiveTheme === 'sunny' && !isNight && (!isCustom || settings.spots);
+  /* ---- 光斑（仅白天晴天，自动） ---- */
+  canvasCtrl.spotsEnabled = effectiveTheme === 'sunny' && !isNight;
 
   /* ---- 花瓣（仅白天晴/多云） ---- */
   const shouldPetal = isSunnyLike && !isNight;
@@ -142,20 +141,50 @@ export function initPanel() {
     if (backdrop)   backdrop.addEventListener('click', closeLetter);
   }
 
-  /* ---- 音乐播放/停止 ---- */
+  /* ---- 本地天气弹窗 ---- */
+  const localBtn = document.getElementById('localWeatherBtn');
+  const localModal = document.getElementById('localWeatherModal');
+  if (localBtn && localModal) {
+    const localBackdrop = document.getElementById('localWeatherBackdrop');
+    const localClose = document.getElementById('localWeatherClose');
+    localBtn.addEventListener('click', () => {
+      const w = getUserWeather();
+      const iconEl = document.getElementById('localWeatherIcon');
+      const tempEl = document.getElementById('localWeatherTemp');
+      const descEl = document.getElementById('localWeatherDesc');
+      if (iconEl) iconEl.innerHTML = iconHTML(w.condition);
+      if (tempEl) tempEl.textContent = `${w.temp}°C`;
+      if (descEl) descEl.textContent = w.text || '--';
+      localModal.classList.add('open');
+    });
+    const closeLocal = () => localModal.classList.remove('open');
+    if (localClose) localClose.addEventListener('click', closeLocal);
+    if (localBackdrop) localBackdrop.addEventListener('click', closeLocal);
+  }
+
+  /* ---- 音乐弹窗 ---- */
   if (musicBtn) {
-    musicBtn.dataset.playing = 'false';
+    const musicModal = document.getElementById('musicModal');
+    const musicBackdrop = document.getElementById('musicBackdrop');
+    const musicModalClose = document.getElementById('musicModalClose');
+    const musicPlayBtn = document.getElementById('musicPlayBtn');
+    const musicStopBtn = document.getElementById('musicStopBtn');
+    const musicStatus = document.getElementById('musicStatus');
+
     musicBtn.addEventListener('click', () => {
-      const isPlaying = musicBtn.dataset.playing === 'true';
-      if (isPlaying) {
-        if (window.stopBgm) window.stopBgm();
-        musicBtn.dataset.playing = 'false';
-        musicBtn.style.borderColor = 'rgba(255,255,255,0.18)';
-      } else {
-        if (window.playBgm) window.playBgm();
-        musicBtn.dataset.playing = 'true';
-        musicBtn.style.borderColor = '#FFD700';
-      }
+      if (musicModal) musicModal.classList.add('open');
+    });
+    const closeMusic = () => { if (musicModal) musicModal.classList.remove('open'); };
+    if (musicModalClose) musicModalClose.addEventListener('click', closeMusic);
+    if (musicBackdrop) musicBackdrop.addEventListener('click', closeMusic);
+
+    if (musicPlayBtn) musicPlayBtn.addEventListener('click', () => {
+      if (window.playBgm) window.playBgm();
+      if (musicStatus) musicStatus.textContent = '♫ 音乐播放中';
+    });
+    if (musicStopBtn) musicStopBtn.addEventListener('click', () => {
+      if (window.stopBgm) window.stopBgm();
+      if (musicStatus) musicStatus.textContent = '⏹ 已停止';
     });
   }
 
@@ -190,6 +219,28 @@ export function initPanel() {
     });
     document.addEventListener('fullscreenchange', fsIcon);
     fsIcon();
+  }
+
+  /* ---- 截图 ---- */
+  const screenshotBtn = document.getElementById('screenshotBtn');
+  if (screenshotBtn && window.html2canvas) {
+    screenshotBtn.addEventListener('click', async () => {
+      screenshotBtn.style.borderColor = '#FFD700';
+      screenshotBtn.innerHTML = `<svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#FFD700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;"><path d="M24 4a20 20 0 1 0 0 40 20 20 0 0 0 0-40z"/><path d="M24 12v12l8 4"/></svg><span class="panel-btn-label">截图中...</span>`;
+      try {
+        const canvas = await window.html2canvas(document.body, {
+          useCORS: true, scale: 2, backgroundColor: null,
+          logging: false
+        });
+        const link = document.createElement('a');
+        link.download = `graduation-${new Date().toISOString().slice(0,10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (_) { /* fallback */ }
+      // 恢复按钮图标
+      screenshotBtn.innerHTML = `<svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="16" width="32" height="22" rx="3"/><circle cx="24" cy="27" r="6"/><path d="M16 16l3-5h10l3 5"/><line x1="36" y1="20" x2="38" y2="20"/></svg><span class="panel-btn-label">截图</span>`;
+      screenshotBtn.style.borderColor = 'rgba(255,255,255,0.18)';
+    });
   }
 
   /* ================================================================
@@ -231,15 +282,10 @@ export function initPanel() {
 
   /* ---- 天气效果 ---- */
   const effRain   = document.getElementById('stEffectRain');
-  const effSpots  = document.getElementById('stEffectSpots');
   const effPetals = document.getElementById('stEffectPetals');
 
   if (effRain) effRain.addEventListener('change', () => {
     settings.rain = effRain.checked;
-    applyCurrentSettings();
-  });
-  if (effSpots) effSpots.addEventListener('change', () => {
-    settings.spots = effSpots.checked;
     applyCurrentSettings();
   });
   if (effPetals) effPetals.addEventListener('change', () => {

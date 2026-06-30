@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;900&family=Great+Vibes&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/src/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 </head>
 <body>
   <!-- === 验证遮罩 === -->
@@ -167,6 +168,25 @@
         </svg>
         <span class="panel-btn-label">音乐</span>
       </button>
+      <!-- 本地天气 -->
+      <button id="localWeatherBtn" class="panel-btn" title="本地天气">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="5.5"/>
+          <path d="M24 4v3M24 41v3M4 24h3M41 24h3M9.5 9.5l2.5 2.5M36 36l2.5 2.5M9.5 38.5l2.5-2.5M36 12l2.5-2.5"/>
+          <path d="M14 24h-3M37 24h-3" stroke-width="1.2"/>
+        </svg>
+        <span class="panel-btn-label">天气</span>
+      </button>
+      <!-- 截图 -->
+      <button id="screenshotBtn" class="panel-btn" title="截图">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="16" width="32" height="22" rx="3"/>
+          <circle cx="24" cy="27" r="6"/>
+          <path d="M16 16l3-5h10l3 5"/>
+          <line x1="36" y1="20" x2="38" y2="20"/>
+        </svg>
+        <span class="panel-btn-label">截图</span>
+      </button>
       <!-- 全屏 -->
       <button id="fullscreenBtn" class="panel-btn" title="全屏">
         <svg viewBox="0 0 48 48" width="28" height="28" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -218,7 +238,6 @@
           <div class="sm-group">
             <div class="sm-group-title">天气效果</div>
             <label class="st-opt"><input type="checkbox" id="stEffectRain" checked><span class="st-cb"></span>雨滴效果</label>
-            <label class="st-opt"><input type="checkbox" id="stEffectSpots" checked><span class="st-cb"></span>光斑效果</label>
             <label class="st-opt"><input type="checkbox" id="stEffectPetals" checked><span class="st-cb"></span>花瓣飘落</label>
           </div>
           <!-- 界面模式 -->
@@ -230,6 +249,26 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- === 音乐控制弹窗 === -->
+  <div id="musicModal" class="modal-overlay">
+    <div class="modal-backdrop" id="musicBackdrop"></div>
+    <div class="modal-wrap" style="max-width:260px;text-align:center;">
+      <button class="modal-close" id="musicModalClose" aria-label="关闭">✕</button>
+      <h3 class="modal-title">♫ 背景音乐</h3>
+      <div style="display:flex;gap:12px;justify-content:center;margin:16px 0 8px;">
+        <button id="musicPlayBtn" style="padding:10px 24px;border:1px solid rgba(255,255,255,0.20);border-radius:12px;background:rgba(255,255,255,0.08);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+          播放
+        </button>
+        <button id="musicStopBtn" style="padding:10px 24px;border:1px solid rgba(255,255,255,0.15);border-radius:12px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          停止
+        </button>
+      </div>
+      <div id="musicStatus" style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:4px;">点击播放开始音乐</div>
     </div>
   </div>
 
@@ -247,7 +286,7 @@
           <p>时间总是过得很快，没想到这都已经毕业了，细细想来，我们认识也快两年了。即便从未见过面，但我说过，我永远对你保持着一份炙热。</p>
           <p>这两年，我们隔着屏幕分享过清晨的闹钟、深夜的焦虑、食堂难吃的饭菜，还有那些不值一提却闪闪发光的小确幸。从最初客客气气的&ldquo;在吗？&rdquo;，到后来可以直接一句&ldquo;我跟你说&rdquo;就开始——这种默契，不输任何现实中的朝夕相处。</p>
           <p>虽然我没法递上一束花，也没法帮你整理帽穗，但这份祝福跨过所有距离，真心不减。</p>
-          <p>毕业了，世界一下子变得很大，大到你也许会慌张。但你已经在我的世界里，留下了很深的印记。所以请带着这份&ldquo;没见过面却依然炙热&rdquo;的信任，大胆往前走。累了的时候，我还在这个对话框里，像过去两年一样，随时听你说。</p>
+          <p>现在你毕业了，世界一下子变得很大很大，大到你也许会慌张。但你已经在我的世界里，留下了很深的印记。所以请带着这份&ldquo;没见过彼此却依然炙热&rdquo;的信任，大胆往前走。累了的时候，我还在这个对话框里，像过去一样，随时听你说。</p>
           <p>愿你此去，有梦有光有自由。</p>
           <p>期待我们终于见面的那天。</p>
           <p class="letter-sign">永远愿意听你说的人</p>
@@ -275,6 +314,22 @@
           <div class="weather-card-icon" id="weatherDetailIconR"></div>
           <div class="weather-card-temp" id="weatherDetailTempR">--°C</div>
           <div class="weather-card-desc" id="weatherDetailDescR">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 本地天气弹窗 === -->
+  <div id="localWeatherModal" class="modal-overlay">
+    <div class="modal-backdrop" id="localWeatherBackdrop"></div>
+    <div class="modal-wrap weather-detail" style="max-width:200px;">
+      <button class="modal-close" id="localWeatherClose" aria-label="关闭">✕</button>
+      <h3 class="modal-title" style="font-size:15px;">当前位置</h3>
+      <div class="weather-cities" style="justify-content:center;">
+        <div class="weather-city-card" style="min-width:120px;">
+          <div class="weather-card-icon" id="localWeatherIcon"></div>
+          <div class="weather-card-temp" id="localWeatherTemp" style="font-size:32px;">--°C</div>
+          <div class="weather-card-desc" id="localWeatherDesc" style="font-size:13px;">--</div>
         </div>
       </div>
     </div>

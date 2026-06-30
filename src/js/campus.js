@@ -22,8 +22,13 @@ export class CampusScene {
     this._treePositions = []; // 枫树位置，用于点击检测
     this._onEasterEgg = onEasterEgg; // 第7棵枫树彩蛋回调
     this._lastTheme = 'sunny';
+    this._dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this._resizeTimer = null;
     this._resize();
-    window.addEventListener('resize', () => this._resize());
+    window.addEventListener('resize', () => {
+      if (this._resizeTimer) cancelAnimationFrame(this._resizeTimer);
+      this._resizeTimer = requestAnimationFrame(() => this._resize());
+    });
     this.draw('sunny');
     this._setupClick();
   }
@@ -46,8 +51,11 @@ export class CampusScene {
   _resize() {
     const w = window.innerWidth;
     this._w = w;
-    this.canvas.width = w;
-    this.canvas.height = this._h;
+    this.canvas.width = w * this._dpr;
+    this.canvas.height = this._h * this._dpr;
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = this._h + 'px';
+    this.ctx.setTransform(this._dpr, 0, 0, this._dpr, 0, 0);
     this._seed = Math.random() * 1000;
     this.draw(this._lastTheme);
   }

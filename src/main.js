@@ -61,7 +61,7 @@ function setupVerification(onPass) {
       const { playBgm } = initAudio();
       playBgm();
       // 验证通过，显示名字在标题
-      document.title = TITLE_TEXT;
+      document.title = 'LU · FIN.';
 
       // 输入框元素逐个缓缓渐隐
       gsap.to('#nameInput, #verifyBtn', {
@@ -156,18 +156,19 @@ function startMainApp() {
   canvasCtrl.start();
   setCanvasRef(canvasCtrl);
 
-  // --- 烟花 ---
+  // --- 烟花（首次点击才初始化） ---
   const fwCanvas = document.getElementById('fireworksCanvas');
-  const fireworkSys = new FireworkSystem(fwCanvas);
+  let fireworkSys = null;
   const fwBtn = document.getElementById('fireworkBtn');
   let fwActive = false;
   if (fwBtn) {
     fwBtn.addEventListener('click', () => {
       if (fwActive) {
-        fireworkSys.stop();
+        if (fireworkSys) fireworkSys.stop();
         fwActive = false;
         fwBtn.style.borderColor = 'rgba(255,255,255,0.18)';
       } else {
+        if (!fireworkSys) fireworkSys = new FireworkSystem(fwCanvas);
         fireworkSys.startLoop();
         fwActive = true;
         fwBtn.style.borderColor = '#FFD700';
@@ -303,14 +304,24 @@ startPetals(20);
 
 setupVerification(startMainApp);
 
-/* ---- 自定义鼠标光点 ---- */
+/* ---- 自定义鼠标光点（跟随移动，5秒不动自动隐藏） ---- */
 (function initCursor() {
   const dot = document.getElementById('cursorFollower');
   if (!dot) return;
-  let raf = null;
+  let timer = null;
 
-  document.addEventListener('mousemove', (e) => {
+  const show = () => {
+    dot.style.opacity = '1';
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => { dot.style.opacity = '0'; }, 5000);
+  };
+
+  const move = (e) => {
     dot.style.left = e.clientX + 'px';
-    dot.style.top  = e.clientY + 'px';
-  });
+    dot.style.top = e.clientY + 'px';
+    show();
+  };
+
+  document.addEventListener('mousemove', move);
+  show();
 })();

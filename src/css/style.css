@@ -945,6 +945,54 @@ body.weather-rainy .letter-paper {
 body.weather-rainy .letter-paper::before {
   border-color: rgba(130, 150, 175, 0.10);
 }
+
+/* ---- 夜晚信封色调 ---- */
+body.night-mode .letter-paper {
+  background: linear-gradient(155deg, #1a1535 0%, #221840 40%, #2a1820 100%);
+  border-color: rgba(180, 160, 220, 0.15);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+body.night-mode .letter-paper::before {
+  border-color: rgba(180, 160, 220, 0.06);
+}
+body.night-mode .letter-header {
+  color: #c8a8e0;
+  border-bottom-color: rgba(180, 160, 220, 0.15);
+}
+body.night-mode .letter-header::before,
+body.night-mode .letter-header::after {
+  color: rgba(180, 160, 220, 0.35);
+}
+body.night-mode .letter-body {
+  color: #c8bcc8;
+}
+body.night-mode .letter-sign {
+  color: #c8a8e0;
+  border-top-color: rgba(180, 160, 220, 0.12);
+}
+body.night-mode .letter-paper::after {
+  color: rgba(180, 160, 220, 0.12);
+}
+body.night-mode .letter-seal {
+  background: radial-gradient(circle at 38% 35%, #8a7ab0, #6a5088);
+  box-shadow: 0 2px 10px rgba(106, 80, 136, 0.30);
+}
+
+/* ---- 夜晚便签卡片色调 ---- */
+body.night-mode .note-card {
+  background: linear-gradient(155deg, #1a1535 0%, #221840 40%, #2a1820 100%);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+body.night-mode .note-body {
+  color: #c8bcc8;
+}
+body.night-mode .note-confirm {
+  background: rgba(180, 160, 220, 0.15);
+  color: #c8a8e0;
+}
+body.night-mode .note-confirm:hover {
+  background: rgba(180, 160, 220, 0.28);
+}
 body.weather-rainy .letter-paper::after {
   color: rgba(130, 150, 175, 0.18);
 }
@@ -1725,5 +1773,10 @@ body.weather-rainy .letter-seal {
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
