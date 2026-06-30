@@ -16,7 +16,7 @@
  *   界面模式   — 自动 / 日间 / 夜间
  */
 
-import { getWeatherCache, applyWeatherTheme, getRainIntensity } from './weather.js';
+import { getWeatherCache, applyWeatherTheme, getRainIntensity, getUserCondition, getUserWeathercode } from './weather.js';
 import { startPetals, stopPetals, arePetalsActive } from './petals.js';
 import { ENGLISH_NAME, FULL_NAME } from '../config/names.js';
 /* ---- 设置状态 ---- */
@@ -43,16 +43,11 @@ export function setCanvasRef(ref) {
 export function applyCurrentSettings(weatherData) {
   if (!canvasCtrl) return;
   if (!weatherData) weatherData = getWeatherCache();
-  if (!weatherData) {
-    weatherData = {
-      guangzhou: { condition: 'sunny', weathercode: 0 },
-      kunming:   { condition: 'sunny', weathercode: 0 }
-    };
-  }
 
   const isCustom    = settings.enabled;
-  const realCond    = weatherData.kunming?.condition || 'sunny';
-  const realCode    = weatherData.kunming?.weathercode;
+  // 访客本地天气（决定主题）
+  const realCond    = getUserCondition();
+  const realCode    = getUserWeathercode();
 
   /* ---- 天气色调 ---- */
   const effectiveTheme = (isCustom && settings.theme !== 'auto') ? settings.theme : realCond;
@@ -69,18 +64,19 @@ export function applyCurrentSettings(weatherData) {
   // 再覆盖日夜
   document.body.classList.toggle('night-mode', isNight);
 
-  /* ---- 星星（夜间 + 非雨天） ---- */
-  if (canvasCtrl) {
-    canvasCtrl.starsEnabled = isNight && effectiveTheme === 'sunny';
-  }
+  /* ---- 各类天气标志 ---- */
+  const isSunnyLike = effectiveTheme === 'sunny' || effectiveTheme === 'cloudy';
+  const isOvercast  = effectiveTheme === 'overcast';
+  const isRainy     = effectiveTheme === 'rainy';
 
-  /* ---- 太阳（白天 + 晴天） ---- */
-  if (canvasCtrl) {
-    canvasCtrl.sunEnabled = !isNight && effectiveTheme === 'sunny';
-  }
+  /* ---- 星星（夜间 + 晴/多云） ---- */
+  canvasCtrl.starsEnabled = isNight && isSunnyLike;
+
+  /* ---- 太阳（白天 + 晴/多云） ---- */
+  canvasCtrl.sunEnabled = !isNight && isSunnyLike;
 
   /* ---- 雨滴 ---- */
-  const shouldRain = effectiveTheme !== 'sunny';
+  const shouldRain = isRainy;
   const rainOK = isCustom ? settings.rain : true;
   canvasCtrl.rainEnabled = shouldRain && rainOK;
   if (shouldRain && rainOK) {
@@ -92,12 +88,11 @@ export function applyCurrentSettings(weatherData) {
     canvasCtrl.rainDrops = [];
   }
 
-  /* ---- 光斑 ---- */
-  const shouldSpot = effectiveTheme === 'sunny';
-  canvasCtrl.spotsEnabled = shouldSpot && (!isCustom || settings.spots);
+  /* ---- 光斑（仅白天晴天） ---- */
+  canvasCtrl.spotsEnabled = effectiveTheme === 'sunny' && !isNight && (!isCustom || settings.spots);
 
-  /* ---- 花瓣（仅白天晴天） ---- */
-  const shouldPetal = effectiveTheme === 'sunny' && !isNight;
+  /* ---- 花瓣（仅白天晴/多云） ---- */
+  const shouldPetal = isSunnyLike && !isNight;
   const petalOK = isCustom ? settings.petals : true;
   if (shouldPetal && petalOK) {
     if (!arePetalsActive()) startPetals(25);

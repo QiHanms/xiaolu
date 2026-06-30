@@ -4,9 +4,10 @@
  * 按经纬度查询实时气温 & WMO 天气码
  * 图标使用内联 SVG，风格与面板按钮统一（白色线描）
  *
- *   sunny  → 太阳
- *   cloudy → 双层云
- *   rainy  → 云 + 雨滴
+ *   sunny   → 太阳（WMO 0）
+ *   cloudy  → 透光云（WMO 1-2）
+ *   overcast→ 阴天密云（WMO 3）
+ *   rainy   → 云 + 雨滴（WMO ≥ 45）
  *
  * API: https://open-meteo.com/
  */
@@ -17,16 +18,19 @@ const CITIES = [
 ];
 
 let weatherCache = null;
+let userCondition = 'sunny';          // 访客本地天气（决定主题）
+let userWeathercode = 0;
 const subscribers = [];
 
-/** 天气影响界面色调开关（默认开启）
- *  已移除：阴天/雨天统一为 rainy 色调，不再可关闭 */
 
+/* ---------- WMO → condition（4 种） ---------- */
 
-/* ---------- WMO → condition（两种色调：sunny / rainy） ---------- */
 function wmoToCondition(code) {
-  if (code === 0) return 'sunny';
-  return 'rainy';
+  if (code === 0)            return 'sunny';
+  if (code <= 2)             return 'cloudy';     // 少云 / 多云间晴
+  if (code <= 3)             return 'overcast';   // 阴天
+  if (code <= 48)            return 'rainy';      // 雾
+  return 'rainy';                                 // 雨雪等
 }
 
 /** WMO 天气码 → 画布雨量强度（0=无, 1=轻, 2=中, 3=大） */
@@ -54,7 +58,8 @@ function wmoToDescription(code) {
   return '--';
 }
 
-/* ---------- 风格统一 SVG 天气图标（线描白风格） ---------- */
+
+/* ---------- SVG 天气图标（线描白风格） ---------- */
 
 const WEATHER_SVG = {
   sunny: `<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -64,6 +69,14 @@ const WEATHER_SVG = {
   cloudy: `<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M36 22h7a4 4 0 0 0 0-8h-1.2A6.8 6.8 0 0 0 29 10"/>
     <path d="M18 26h-6a4 4 0 0 1 0-8h1a6.5 6.5 0 0 1 12-3"/>
+  </svg>`,
+  overcast: `<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M34 24h6a3.5 3.5 0 1 0 0-7h-1.2A7.2 7.2 0 0 0 27 12.5" opacity="0.5"/>
+    <path d="M16 26h-5a3.5 3.5 0 1 1 0-7h1A6.5 6.5 0 0 1 18 14" opacity="0.5"/>
+    <path d="M9 28h30a4 4 0 0 0 0-8h-1.5A8 8 0 0 0 22 16a8 8 0 0 0-12 6H12a4.5 4.5 0 0 0 0 9h-3z" opacity="0.7"/>
+    <line x1="12" y1="36" x2="14" y2="32" opacity="0.4"/>
+    <line x1="24" y1="36" x2="26" y2="32" opacity="0.4"/>
+    <line x1="36" y1="36" x2="38" y2="32" opacity="0.4"/>
   </svg>`,
   rainy: `<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M34 20h8a3.5 3.5 0 1 0 0-7h-1.2A7.2 7.2 0 0 0 27 8.5"/>
@@ -77,6 +90,7 @@ const WEATHER_SVG = {
 function iconHTML(condition) {
   return WEATHER_SVG[condition] || WEATHER_SVG.cloudy;
 }
+
 
 /* ---------- API ---------- */
 
@@ -107,6 +121,47 @@ export async function fetchAllWeather() {
   return weatherCache;
 }
 
+
+/* ---------- 访客本地定位天气（决定主题） ---------- */
+
+/**
+ * 获取访客地理位置 → 查询 Open-Meteo → 更新 userCondition
+ * 定位失败或拒绝时回退 sunny
+ */
+export async function fetchUserWeather() {
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        timeout: 5000, maximumAge: 600_000
+      });
+    });
+    const { latitude, longitude } = pos.coords;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const cw = json.current_weather;
+    userCondition = wmoToCondition(cw.weathercode);
+    userWeathercode = cw.weathercode;
+  } catch (_) {
+    userCondition = 'sunny';
+    userWeathercode = 0;
+  }
+  return { condition: userCondition, weathercode: userWeathercode };
+}
+
+/** 获取访客当前的天气条件 */
+export function getUserCondition() {
+  return userCondition;
+}
+
+export function getUserWeathercode() {
+  return userWeathercode;
+}
+
+
+/* ---------- 导出 ---------- */
+
 export function getWeatherCache() { return weatherCache; }
 
 export function getWeatherCondition(city) {
@@ -114,6 +169,7 @@ export function getWeatherCondition(city) {
 }
 
 export function onWeatherUpdate(fn) { subscribers.push(fn); }
+
 
 /* ---------- 渲染 ---------- */
 
@@ -147,6 +203,7 @@ export async function initWeather() {
   return data;
 }
 
+
 /* ================================================================
    天气联动：背景主题 + 夜晚模式
    ================================================================ */
@@ -159,14 +216,16 @@ export function isNightTime() {
 
 /**
  * 根据天气 + 时间设置 body class
- * 两种色调：sunny（晴）/ rainy（阴雨共用）
+ * sunny / cloudy / overcast 均使用暖色（weather-sunny），
+ * rainy 使用冷色（weather-rainy）
  */
 export function applyWeatherTheme(condition) {
   const body = document.body;
   if (!body) return;
 
+  const isSunnyLike = condition === 'sunny' || condition === 'cloudy' || condition === 'overcast';
   body.classList.remove('weather-sunny', 'weather-rainy');
-  body.classList.add(`weather-${condition}`);
+  body.classList.add(isSunnyLike ? 'weather-sunny' : 'weather-rainy');
 
   if (isNightTime()) {
     body.classList.add('night-mode');

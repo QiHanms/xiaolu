@@ -13,7 +13,7 @@ import './css/style.css';
 
 import gsap                from 'gsap';
 import CanvasController    from './js/canvas.js';
-import { initWeather, onWeatherUpdate } from './js/weather.js';
+import { initWeather, onWeatherUpdate, fetchUserWeather, getUserCondition } from './js/weather.js';
 import { animateDistanceNumber }        from './js/distance.js';
 import { startHeartbeat }               from './js/heartbeat.js';
 import { initAudio }                    from './js/audio.js';
@@ -216,16 +216,21 @@ function startMainApp() {
 
   if (campusCanvas) campusScene = new CampusScene(campusCanvas, showEasterEgg);
 
-  // --- 天气 + 背景主题（通过设置系统统一管理） ---
+  // --- 天气 + 背景主题 ---
+  // 访客本地天气决定主题，双城天气仅作显示
   (async () => {
+    // 先获取访客定位天气
+    try { await fetchUserWeather(); } catch (_) { /* fallback sunny */ }
+
+    // 再拉双城天气（面板显示）
     let weatherData = { guangzhou: { condition: 'sunny' }, kunming: { condition: 'sunny' } };
     try { weatherData = await initWeather(); } catch (_) { /* fallback sunny */ }
     applyCurrentSettings(weatherData);
 
     onWeatherUpdate((d) => {
       applyCurrentSettings(d);
-      // 校园建筑跟随天气重绘
-      if (campusScene) campusScene.draw(d.kunming?.condition || 'sunny');
+      // 校园建筑跟随访客本地天气重绘
+      if (campusScene) campusScene.draw(getUserCondition());
     });
   })();
 
